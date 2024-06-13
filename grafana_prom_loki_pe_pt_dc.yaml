@@ -68,10 +68,10 @@ services:
       - default
 
 #
-# Configure the CentOS v8 container which generates the metrics and logs for Prometheus/Loki:
+# Configure the CentOS v8 container which generates the metrics/logs for Prometheus/Loki:
 #
   centos:
-    image: andymp/centos-v8-pe-pt-stack:v4
+    image: andymp/centos-v8-pe-pt-stack:v5
     container_name: centos
     cap_add:
       - NET_ADMIN
