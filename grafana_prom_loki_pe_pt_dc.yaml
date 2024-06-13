@@ -1,52 +1,15 @@
+# Declare a network that all the containers will be connected to:
 networks:
-  loki:
+  default:
+    name: dc-net
 
 services:
-  loki:
-    image: grafana/loki:2.9.2
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - loki
-
-# promtail:
-#   image: grafana/promtail:2.9.2
-#   volumes:
-#     - /var/log:/var/log
-#   command: -config.file=/etc/promtail/config.yml
-#   networks:
-#     - loki
-
-  prometheus:
-    image: andymp/prometheus-dc-centos8
-    ports:
-      - "9090:9090"
 #
-#   Added the --web.enable-lifecycle flag to allow Prometheus to reload its configuration dynamically with
-#   an external curl command in the form: curl -X POST localhost:4100/-/reload
+# Configure the Grafana container:
 #
-    command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.enable-lifecycle
-    networks:
-      - loki
-
-  centos:
-    image: andymp/centos_v8_with_pe_pt:v3
-    cap_add:
-      - NET_ADMIN
-#   volumes:
-#     - /var/log:/var/log
-    ports:
-      - "9256:9256"
-    entrypoint:
-      - bash
-      - -c
-      - /root/entrypoint.sh
-    networks:
-      - loki
-
   grafana:
-    image: andymp/grafana_pe_pt
+    image: andymp/grafana-pe-pt-stack:v1
+    container_name: grafana
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
@@ -73,4 +36,53 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - loki
+      - default
+
+#
+# Configure the Prometheus container:
+#
+  prometheus:
+    image: andymp/prometheus-pe-pt-stack:v1
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+#
+#   Added the --web.enable-lifecycle flag to allow Prometheus to reload its configuration dynamically with
+#   an external curl command in the form: curl -X POST http://prometheus:9090/-/reload
+#
+    command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.enable-lifecycle
+    networks:
+      - default
+
+#
+# Configure the Grafana Loki container:
+#
+  loki:
+#   image: andymp/loki-v2.9.2-pe-pt-stack:v1
+    image: grafana/loki:2.9.2
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - default
+
+#
+# Configure the CentOS v8 container which generates the metrics and logs for Prometheus/Loki:
+#
+  centos:
+    image: andymp/centos-v8-pe-pt-stack:v4
+    container_name: centos
+    cap_add:
+      - NET_ADMIN
+#   volumes:
+#     - /var/log:/var/log
+    ports:
+      - "9256:9256"
+    entrypoint:
+      - bash
+      - -c
+      - /root/entrypoint.sh
+    networks:
+      - default
+
