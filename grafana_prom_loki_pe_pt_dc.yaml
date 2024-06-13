@@ -1,0 +1,76 @@
+networks:
+  loki:
+
+services:
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - loki
+
+# promtail:
+#   image: grafana/promtail:2.9.2
+#   volumes:
+#     - /var/log:/var/log
+#   command: -config.file=/etc/promtail/config.yml
+#   networks:
+#     - loki
+
+  prometheus:
+    image: andymp/prometheus-dc-centos8
+    ports:
+      - "9090:9090"
+#
+#   Added the --web.enable-lifecycle flag to allow Prometheus to reload its configuration dynamically with
+#   an external curl command in the form: curl -X POST localhost:4100/-/reload
+#
+    command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.enable-lifecycle
+    networks:
+      - loki
+
+  centos:
+    image: andymp/centos_v8_with_pe_pt:v3
+    cap_add:
+      - NET_ADMIN
+#   volumes:
+#     - /var/log:/var/log
+    ports:
+      - "9256:9256"
+    entrypoint:
+      - bash
+      - -c
+      - /root/entrypoint.sh
+    networks:
+      - loki
+
+  grafana:
+    image: andymp/grafana_pe_pt
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy 
+          orgId: 1
+          url: http://loki:3100
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: false
+        EOF
+        /run.sh
+    ports:
+      - "3000:3000"
+    networks:
+      - loki
