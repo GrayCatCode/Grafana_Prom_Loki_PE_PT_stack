@@ -37,6 +37,9 @@ services:
       - "3000:3000"
     networks:
       - default
+    depends_on:
+      - prometheus
+      - loki
 
 #
 # Configure the Prometheus container:
@@ -85,4 +88,7 @@ services:
       - /root/entrypoint.sh
     networks:
       - default
+    depends_on:
+      - prometheus
+      - loki
 
