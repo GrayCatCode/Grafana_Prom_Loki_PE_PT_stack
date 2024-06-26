@@ -90,16 +90,16 @@ services:
 # ----------------------------------------
 # Configure the Node Exporter container: -
 # ----------------------------------------
-# node-exporter:
-#   image: prom/node-exporter:latest
-#   container_name: node_exporter
-#   restart: unless-stopped
-#   expose:
-#     - 9100
-#   ports:
-#     - "9200:9100"
-#   networks:
-#     - default
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    restart: unless-stopped
+    expose:
+      - 9100
+    ports:
+      - "9100:9100"
+    networks:
+      - default
 
 # -----------------------------------
 # Configure the cadvisor container: -
