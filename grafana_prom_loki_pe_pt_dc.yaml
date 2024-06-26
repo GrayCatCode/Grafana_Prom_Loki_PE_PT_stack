@@ -1,9 +1,9 @@
 # ----------------------------------------------------------------------
 # Declare any networks that the containers need for interconnectivity: -
 # ----------------------------------------------------------------------
-networks:
-  default:
-    name: dc-net1
+#networks:
+#  default:
+#    name: dc-net1
 
 services:
 # ----------------------------------
@@ -38,8 +38,8 @@ services:
         /run.sh
     ports:
       - "3000:3000"
-    networks:
-      - default
+#    networks:
+#     - default
     depends_on:
       - prometheus
       - loki
@@ -48,7 +48,7 @@ services:
 # Configure the Prometheus container: -
 # -------------------------------------
   prometheus:
-    image: andymp/prometheus-pe-pt-stack:v2
+    image: andymp/prometheus-pe-pt-stack:v3
     container_name: prometheus
     restart: unless-stopped
     ports:
@@ -58,8 +58,8 @@ services:
 #   an external curl command in the form: curl -X POST http://prometheus:9090/-/reload
 #
     command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.enable-lifecycle
-    networks:
-      - default
+#   networks:
+#     - default
 
 # ---------------------------------------
 # Configure the Grafana Loki container: -
@@ -72,8 +72,8 @@ services:
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - default
+#   networks:
+#     - default
 
 # ---------------------------------------
 # Configure the Grafana Loki container: -
@@ -84,8 +84,8 @@ services:
     restart: unless-stopped
     ports:
       - "9093:9093"
-    networks:
-      - default
+#   networks:
+#     - default
 
 # ----------------------------------------
 # Configure the Node Exporter container: -
@@ -96,16 +96,11 @@ services:
     restart: unless-stopped
     command:
       - '--path.rootfs=/host'
-    network_mode: host
     pid: host
     volumes:
-      - '/:/host:ro,rslave'
-    expose:
-      - 9100
+      - '/:/host:ro'
     ports:
       - "9100:9100"
-    networks:
-      - default
 
 # -----------------------------------
 # Configure the cadvisor container: -
@@ -149,8 +144,8 @@ services:
       - bash
       - -c
       - /root/entrypoint.sh
-    networks:
-      - default
+#   networks:
+#     - default
     deploy:
       resources:
         reservations:
