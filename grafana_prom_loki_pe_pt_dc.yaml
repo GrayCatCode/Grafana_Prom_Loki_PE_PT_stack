@@ -136,10 +136,14 @@ services:
   # Need to add the NET_ADMIN Linux capability to run iperf3 on the container.
     cap_add:
       - NET_ADMIN
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_HOST_AUTH_METHOD=trust
 #   volumes:
 #     - /var/log:/var/log
     ports:
       - "5002:5002"
+      - "5432:5432"
       - "9256:9256"
       - "9257:9257"
     entrypoint:
