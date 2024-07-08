@@ -3,7 +3,8 @@
 # ----------------------------------------------------------------------
 networks:
   default:
-    name: dc-net1
+    name: dc-bridge-net-1
+    driver: bridge
 
 services:
 # ----------------------------------
@@ -130,7 +131,7 @@ services:
 # Configure the CentOS v8 container which generates the metrics/logs for Prometheus/Loki: -
 #------------------------------------------------------------------------------------------
   centos:
-    image: andymp/centos-v8-pe-pt-stack:v12
+    image: andymp/centos-v8-pe-pt-stack:v13
     container_name: centos
     restart: unless-stopped
   # Need to add the NET_ADMIN Linux capability to run iperf3 on the container.
