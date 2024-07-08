@@ -130,15 +130,14 @@ services:
 # Configure the CentOS v8 container which generates the metrics/logs for Prometheus/Loki: -
 #------------------------------------------------------------------------------------------
   centos:
-    image: andymp/centos-v8-pe-pt-stack:v10
+    image: andymp/centos-v8-pe-pt-stack:v12
     container_name: centos
     restart: unless-stopped
   # Need to add the NET_ADMIN Linux capability to run iperf3 on the container.
     cap_add:
       - NET_ADMIN
-    environment:
-      - POSTGRES_PASSWORD=mysecretpassword
-      - POSTGRES_HOST_AUTH_METHOD=trust
+#   environment:
+#     - POSTGRES_HOST_AUTH_METHOD=trust
 #   volumes:
 #     - /var/log:/var/log
     ports:
